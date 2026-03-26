@@ -93,13 +93,43 @@ if(!isPasswordValid){
 }
 
 
+/**
+    * @name logoutUserControllers
+    * @description clear token from user cookie and add the token in blacklist
+    * @access Public
+ */
+
 async function logoutUserControllers(req,res){
   const token=req.cookies.token;
-  if(!token){
-    return res.status(400).json({message:"No token found in cookies"})
+  if(token){
+    await blacklistTokenModel.create({token})
   }
+    res.clearCookie("token")
+    res.status(200).json({message:"User logged out successfully"    
+    })
+}
+
+/**
+ * @name getMeControllers
+ * @description get user details of current logged in user
+ * @access Private
+ */
+
+async function getMeControllers(req,res){
+const user= await userModel.findById(req.user.id)
+
+res.status(200).json({
+    message:"User details fetched successfully",
+    user:{
+        id:user._id,
+        username:user.username,
+        email:user.email
+    }
+})
 }
 module.exports={
     registerUserControllers,
     loginUserControllers,
+    logoutUserControllers,
+    getMeControllers
 }
